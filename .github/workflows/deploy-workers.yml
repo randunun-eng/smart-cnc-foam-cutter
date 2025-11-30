@@ -1,0 +1,30 @@
+name: Deploy Workers
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'workers/**'
+      - '.github/workflows/deploy-workers.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy Workers
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy AI Slicer
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: 'workers/ai-slicer'
+
+      - name: Deploy Watcher
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: 'workers/watcher'
