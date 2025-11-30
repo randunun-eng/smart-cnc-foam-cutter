@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luckfox CNC Dashboard</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #1a1a1a;
+            color: #eee;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #444;
+        }
+
+        h2 {
+            color: #00ff9d;
+            margin-top: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #aaa;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            background: #3d3d3d;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #00ff9d;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #00cc7d;
+        }
+
+        button.logout {
+            background: #ff4444;
+            float: right;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .status-item {
+            background: #3d3d3d;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .status-label {
+            font-size: 0.8em;
+            color: #aaa;
+        }
+
+        .status-value {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .jog-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            gap: 5px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .jog-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #444;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <button class="logout" onclick="location.href='/logout'">Logout</button>
+        <h1>System Dashboard</h1>
+
+        <div class="card">
+            <h2>Status</h2>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-label">Machine State</div>
+                    <div class="status-value" id="state">Idle</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">IP Address</div>
+                    <div class="status-value">{{ ip_address }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Wi-Fi Setup</h2>
+            <form method="POST" action="/wifi_setup">
+                <label>SSID (Network Name)</label>
+                <input type="text" name="ssid" placeholder="Enter SSID" required>
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Enter Password">
+                <button type="submit">Connect</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Manual Control</h2>
+            <div class="jog-controls">
+                <div></div>
+                <button class="jog-btn" onclick="jog('Y', 10)">Y+</button>
+                <div></div>
+                <button class="jog-btn" onclick="jog('X', -10)">X-</button>
+                <button class="jog-btn" onclick="jog('H', 0)">Home</button>
+                <button class="jog-btn" onclick="jog('X', 10)">X+</button>
+                <div></div>
+                <button class="jog-btn" onclick="jog('Y', -10)">Y-</button>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function jog(axis, dist) {
+            if (axis === 'H') {
+                // Home command logic if needed, or just unlock
+                fetch('/jog', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: '$H' }) // Assuming backend handles raw or we adapt
+                });
+                return;
+            }
+            fetch('/jog', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ axis: axis, distance: dist, feed: 1000 })
+            });
+        }
+
+        setInterval(() => {
+            fetch('/status').then(r => r.json()).then(data => {
+                document.getElementById('state').innerText = data.status;
+            });
+        }, 2000);
+    </script>
+</body>
+
+</html>
