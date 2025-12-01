@@ -1,0 +1,10 @@
+name = "foam-cnc-dashboard"
+compatibility_date = "2024-04-05"
+pages_build_output_dir = "dist"
+
+[ai]
+binding = "AI"
+
+[[kv_namespaces]]
+binding = "MACHINE_KV"
+id = "3a9cc5a79053496d8dab1c6df218bc6b"
